@@ -2,6 +2,8 @@ import cv2
 import os
 import numpy as np
 
+#https://docs.opencv.org/4.x/dc/dbb/tutorial_py_calibration.htmln as reference
+
 objpoints = [] # 3d point in real world space
 imgpoints = [] # 2d points in image plane.
 
@@ -17,8 +19,11 @@ objp = np.zeros((b*a,3), np.float32)
 objp[:,:2] = np.mgrid[0:a,0:b].T.reshape(-1,2)
 
 images = os.listdir("images")
+x = 0
 for photo in images:
     print(photo)
+    print(x)
+    x +=1
     img = cv2.imread("images/%s" % photo)
 
     grayScale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -62,6 +67,8 @@ mean_error = 0
 for i in range(len(objpoints)):
  imgpoints2, _ = cv2.projectPoints(objpoints[i], rvecs[i], tvecs[i], mtx, dist)
  error = cv2.norm(imgpoints[i], imgpoints2, cv2.NORM_L2)/len(imgpoints2)
+ print(error)
+ print(i)
  mean_error += error
  
 print( "total error: {}".format(mean_error/len(objpoints)) )
