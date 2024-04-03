@@ -117,7 +117,9 @@ while True:
     img2 = cv2.drawKeypoints(blurring, keyPoints1, None, color=(128,128,0), flags=0)
     cv2.imshow('Matched', matchedImg)
     cv2.moveWindow('Matched', 200, 0)
-    cv2.imshow("Fast Algorithm", img2)
+    #stereo = cv2.StereoBM.create(numDisparities=16, blockSize=15)
+    #disparity = stereo.compute(gray1, gray2)
+    #cv2.imshow('Fast Algorithm', disparity)
     end_time = time.time()
     print((end_time-start_time))
     if cv2.waitKey(1)==ord('q'):

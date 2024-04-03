@@ -320,3 +320,5 @@ Translation Vectors:
        [45.85437037]]))
 
 total error: 0.06358254824863807
+
+Deviates by +-0.0636 pixels

@@ -6,6 +6,7 @@ import numpy as np
 import time
 from vpython import *
 
+
 x = 0
 y = 0
 z = 0
@@ -18,12 +19,13 @@ lk_params = dict(winSize  = (21, 21),
              	criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.01))
 # Feedback for odemetry errors
 
+
 # TODO: Camera Calibration for raspberry pi
 # checkerboard test
 
 cam = cv2.VideoCapture(0)
 
-# setting to known resolution
+# setting to known resol    `ution
 cam.set(3, 1280)
 cam.set(4, 720)
 focalLength = 3.02
@@ -85,6 +87,7 @@ while True:
     blurring = cv2.GaussianBlur(gray1, (5,5), 0)
 
     img2 = cv2.drawKeypoints(blurring, keyPoints1, None, color=(128,128,0), flags=0)
+    
     cv2.moveWindow('Matched', 500, 0)
     cv2.imshow("Fast Algorithm", img2)
     end_time = time.time()
