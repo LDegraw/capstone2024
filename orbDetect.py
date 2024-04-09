@@ -3,8 +3,9 @@ import cv2
 import matplotlib
 import random
 import numpy as np
+import math
 import time
-from vpython import *
+#from vpython import *
 #import matplotlib.pyplot as plt
 
 x = 0
@@ -26,8 +27,8 @@ fy_px = mtx[1, 1]
 pixel_size_x_mm = sensor_width_mm / image_width_px
 pixel_size_y_mm = sensor_height_mm / image_height_px
 
-robot = sphere(radius=0.0001, color=color.red)
-roboPath = curve(pos=[vec(0, 0, 0)], color=color.blue)
+#robot = sphere(radius=0.0001, color=color.red)
+#roboPath = curve(pos=[vec(0, 0, 0)], color=color.blue)
 
 lk_params = dict(winSize  = (21, 21), 
 				#maxLevel = 3,
@@ -46,39 +47,41 @@ while True:
     #plt.show() 
     start_time = time.time()
     _, frame1 = cam.read()
-    roboPath.append(pos=vector(x,y,z), color=color.blue)
-    robot.pos=vector(x, y, z)
+    #roboPath.append(pos=vector(x,y,z), color=color.blue)
+    #robot.pos=vector(x, y, z)
     # undistort images
-    dst = cv2.undistort(frame1, mtx, dist, None)
-    gray1 = cv2.cvtColor(dst, cv2.COLOR_BGR2GRAY)
+    #dst = cv2.undistort(frame1, mtx, dist, None)
+    gray1 = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
+
     fast = cv2.FastFeatureDetector_create(threshold=45)
     #creating 1000 
     orb = cv2.ORB.create(1000)
-    keyPoints1, descriptors1 = orb.detectAndCompute(gray1, None)
+    pts1 = cv2.goodFeaturesToTrack(gray1, maxCorners=4500, qualityLevel=0.02, minDistance=3, useHarrisDetector=True)
+    keyPoints1, descriptors1 = orb.detectAndCompute(gray1, pts1)
 
     # creating two frames to read from
     _, frame2 = cam.read()
-    dst2 = cv2.undistort(frame2, mtx, dist, None)
-    gray2 = cv2.cvtColor(dst2, cv2.COLOR_BGR2GRAY)
-    keyPoints2, descriptors2 = orb.detectAndCompute(gray2, None)
-    keys1 = np.expand_dims(cv2.KeyPoint_convert(keyPoints1), axis=1)
-    keys2 = np.expand_dims(cv2.KeyPoint_convert(keyPoints2), axis=1)
-    
+    #dst2 = cv2.undistort(frame2, mtx, dist, None)
+    gray2 = cv2.cvtColor(frame2, cv2.COLOR_BGR2GRAY)
+    pts2 = cv2.goodFeaturesToTrack(gray2, maxCorners=4500, qualityLevel=0.02, minDistance=3, useHarrisDetector=True)
+    keyPoints2, descriptors2 = orb.detectAndCompute(gray2, pts2)
+
     FLANN_INDEX_LSH = 6
     indexParams = dict(algorithm = FLANN_INDEX_LSH, table_number=6, key_size=12, multi_probe_level=1)
     searchParams = dict(checks=50)
     flann = cv2.FlannBasedMatcher(indexParams=indexParams, searchParams=searchParams)  
 
-    matches = flann.knnMatch(descriptors1, descriptors2, k=2)
+    try:
+        matches = flann.knnMatch(descriptors1, descriptors2, k=2)
+    except:
+        pass
 
-    #kp2, st, err = cv2.calcOpticalFlowPyrLK(gray1, gray2, keys1, None, **lk_params)
-    #st = st.reshape(st.shape[0])
 
     goodMatches = []
     for i, pair in enumerate(matches):
         try:
             m, n = pair
-            if m.distance < 0.99*n.distance:
+            if m.distance < 0.9*n.distance:
                 goodMatches.append(m)
         except ValueError:
             pass
@@ -87,7 +90,11 @@ while True:
     q2 = np.float32([keyPoints2[m.trainIdx].pt for m in goodMatches])
 
     matchedImg = cv2.drawMatches(gray1, keyPoints1, gray2, keyPoints2, goodMatches, None)  
+    
 
+   # if(goodMatches[#left] > goodMatches[#right]){
+   #     print("LEFT")
+   # }
     #focal=focalLength, method=cv2.RANSAC, prob=0.999, threshold=1.0
     # Need only 5 good points to calculate any distance from frame to frame to input into essential matrix
     try:
@@ -99,9 +106,9 @@ while True:
         y = y + 0.1*translation_real_world[1]
         z = z + 0.1*translation_real_world[2]
     
-        print("X: %s\n" % x)
-        print("Y: %s\n" % y)
-        print("Z: %s\n" % z)
+        #print("X: %s\n" % x)
+       # print("Y: %s\n" % y)
+        #print("Z: %s\n" % z)
     except:
         pass
     # y_1^T * E * y = 0 for y being normalized image coordinates
@@ -113,8 +120,12 @@ while True:
     #print(T)
     #using guassian blurring to make image more fuzzy/ better for detector
     blurring = cv2.GaussianBlur(gray1, (5,5), 0)
+    
 
-    img2 = cv2.drawKeypoints(blurring, keyPoints1, None, color=(128,128,0), flags=0)
+    # Keypoints1/2 store list of cv2.KeyPoints
+    # descriptors contain the actual information reguarding these points
+    img2 = cv2.drawKeypoints(blurring, keyPoints1, None, color=(128,128,0), flags=cv2.DrawMatchesFlags_DRAW_RICH_KEYPOINTS)
+    cv2.imshow("rich", img2)
     cv2.imshow('Matched', matchedImg)
     cv2.moveWindow('Matched', 200, 0)
     #stereo = cv2.StereoBM.create(numDisparities=16, blockSize=15)
@@ -125,5 +136,5 @@ while True:
     if cv2.waitKey(1)==ord('q'):
         break
 cam.release()
-
+cv2.destroyAllWindows()
 

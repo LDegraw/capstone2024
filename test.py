@@ -17,25 +17,11 @@ while True:
 
     orb = cv2.ORB.create(1000)
     keyPoints1, descriptors1 = orb.detectAndCompute(sized, None)
-    img2 = cv2.drawKeypoints(sized, keyPoints1, None, color=(128,128,0), flags=0)
+    img2 = cv2.drawKeypoints(sized, keyPoints1, None, color=(128,128,0), flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
 
     cv2.imshow("resized", img2)
     if cv2.waitKey(1)==ord('q'):
         break
 cv2.destroyAllWindows()
-#while True:
-#    start_time = time.time()
-#    _, frame1 = cam.read()
-#    gray = cv2.cvtColor(frame1, cv2.COLOR_BGR2GRAY)
-#    sized = cv2.resize(gray, (400, 400))
-#    orb = cv2.ORB.create(1000)
-#    keyPoints1, descriptors1 = orb.detectAndCompute(sized, None)#
 
-#    img2 = cv2.drawKeypoints(sized, keyPoints1, None, color=(128,128,0), flags=0)
-#    time.sleep(0.0001)
-#    plt.imshow(img2)
-#    end_time = time.time()
-#    print((end_time-start_time))
-#    if cv2.waitKey(1)==ord('q'):
-#        break
 cam.release()
