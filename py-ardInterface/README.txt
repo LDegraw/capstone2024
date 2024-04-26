@@ -25,3 +25,9 @@ This opens a blank screen in terminal that should take key inputs as follows:
     - DELETE     =  F
  
 Use CTRL_C to exit out of this screen back to the terminal
+
+Commands For Arduino:
+1. Go to the search bar
+2. Write >Arduino:
+3. A list should appear, you should set your port, and type of board.
+4. You should now be able to write >Arduino: UploadCLI which flashes the arduino

@@ -16,7 +16,8 @@ while True:
 
     ret_qr, decoded_info, points, _ = detector.detectAndDecodeMulti(gray)
     if ret_qr:
-        print(decoded_info)
+        if(decoded_info== ('left',)):
+            print("do Shit")
     cv2.imshow("resized", frame1)
     if cv2.waitKey(1)==ord('q'):
         break
